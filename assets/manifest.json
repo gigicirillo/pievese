@@ -1,0 +1,14 @@
+{
+  "ready": false,
+  "anchor": "assets/anchor.jpg",
+  "logo": "assets/logo-pievese.png",
+  "frameCount": 150,
+  "width": 1600,
+  "clips": [
+    {"id": "sweep", "video": "assets/sweep.mp4", "frames": "frames/sweep/frame_"},
+    {"id": "opening", "video": "assets/opening.mp4", "frames": "frames/opening/frame_"},
+    {"id": "strike", "video": "assets/strike.mp4", "frames": "frames/strike/frame_"}
+  ],
+  "membershipEndpoint": null,
+  "privacyUrl": null
+}
