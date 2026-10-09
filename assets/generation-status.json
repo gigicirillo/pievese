@@ -7,11 +7,21 @@
   "clips": {
     "sweep": {
       "job": "7acb5383-7bcf-4719-83bf-5257f35ad9ca",
-      "status": "in_progress"
+      "status": "completed",
+      "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3JkJWu4aQXEyV7ifLgrw5jqrsr5/hf_20261009_140829_7acb5383-7bcf-4719-83bf-5257f35ad9ca.mp4",
+      "width": 1920,
+      "height": 1080,
+      "duration": 10.041667,
+      "visual_review": "Contact sheet reviewed at 0, 3, 6, 9 seconds; sweep light and lifting crest visible. Full browser review pending."
     },
     "opening": {
       "job": "fcd7e3f6-c1a7-4361-8b75-b3cf3e60ab2a",
-      "status": "in_progress"
+      "status": "completed",
+      "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3JkJWu4aQXEyV7ifLgrw5jqrsr5/hf_20261009_140831_fcd7e3f6-c1a7-4361-8b75-b3cf3e60ab2a.mp4",
+      "width": 1920,
+      "height": 1080,
+      "duration": 10.041667,
+      "visual_review": "Contact sheet reviewed at 0, 3, 6, 9 seconds; sweep light and lifting crest visible. Full browser review pending."
     },
     "strike": {
       "status": "not_submitted",
