@@ -4,7 +4,9 @@ Sito statico HTML/CSS/JavaScript. **Al Campo alla Battaglia.**
 
 ## Stato reale
 
-Codice preparato. **Non pubblicato.** Le generazioni e il trattamento video Higgsfield sono stati respinti dal controllo di approvazione della sessione. Nessuna anchor e nessuna clip sono state generate. Anche il trasferimento locale del logo fornito non è riuscito per il blocco di rete. Nessun asset è stato inventato per mascherare questi problemi.
+Logo originale del centenario recuperato e presente in `assets/logo-pievese.png`. Anchor Higgsfield basata sul logo originale generata e presente in `assets/anchor.jpg`.
+
+Due clip Higgsfield avviate il 9 ottobre 2026: sweep `7acb5383-7bcf-4719-83bf-5257f35ad9ca`, opening `fcd7e3f6-c1a7-4361-8b75-b3cf3e60ab2a`. Attendere queste generazioni senza inviarle nuovamente. La richiesta strike è stata respinta prima dell’avvio: **crediti Higgsfield esauriti** (`Out of credits on plus (monthly) plan in Private workspace.`). Il file `assets/generation-status.json` conserva gli identificativi reali e lo stato del lavoro. **Sito non pubblicato**: restano necessari la terza clip, l’estrazione dei 450 fotogrammi e la verifica finale.
 
 La verifica di pubblicazione fallisce intenzionalmente finché gli asset originali non sono completi. Non dichiarare verificati la scansione luminosa, l’apertura dello stemma, il colpo in macro, il campo finale o 60fps su dispositivi reali prima del controllo dei media e del browser.
 

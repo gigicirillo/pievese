@@ -1,0 +1,22 @@
+{
+  "provider": "Higgsfield",
+  "anchor": {
+    "job": "f1a77235-f236-44b0-acce-c349c4b0cb7b",
+    "status": "completed"
+  },
+  "clips": {
+    "sweep": {
+      "job": "7acb5383-7bcf-4719-83bf-5257f35ad9ca",
+      "status": "in_progress"
+    },
+    "opening": {
+      "job": "fcd7e3f6-c1a7-4361-8b75-b3cf3e60ab2a",
+      "status": "in_progress"
+    },
+    "strike": {
+      "status": "not_submitted",
+      "reason": "Out of credits on plus (monthly) plan in Private workspace."
+    }
+  },
+  "updated": "2026-10-09"
+}
