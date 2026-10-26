@@ -64,3 +64,6 @@ header{position:fixed;background:rgba(244,249,252,.88);backdrop-filter:blur(22px
 
 @media(min-width:761px){.match-card{top:112px;padding:12px 20px}.match-kicker{font-size:13px}.match-teams{margin:12px 0 6px;font-size:18px}.match-card p{font-size:11px;line-height:1.35;margin-bottom:6px}.match-card>a{font-size:12px}}
 @media(max-width:760px){.sports-table{min-width:0;font-size:12px;table-layout:fixed}.sports-table th,.sports-table td{padding:12px 7px}.sports-table th:nth-child(1),.sports-table td:nth-child(1){width:34px}.sports-table th:nth-child(3),.sports-table td:nth-child(3){width:44px}.sports-table th:nth-child(4),.sports-table td:nth-child(4){width:30px}.sports-table tbody th{min-width:0;overflow-wrap:anywhere}.sports-table tr>*:nth-child(n+5){display:none}}
+
+/* Keep intrinsic photo ratios inside narrow mobile grid tracks. */
+.section-grid>*,.category-placeholder>*{min-width:0}.photo-placeholder{width:100%;max-width:100%}
