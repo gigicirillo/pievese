@@ -24,9 +24,15 @@
       "visual_review": "Contact sheet reviewed at 0, 3, 6, 9 seconds; sweep light and lifting crest visible. Full browser review pending."
     },
     "strike": {
-      "status": "not_submitted",
-      "reason": "Out of credits on plus (monthly) plan in Private workspace."
+      "job": "8f9477b8-bb73-4793-8904-7455edb7e3c7",
+      "status": "completed",
+      "approved_credits": 160,
+      "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3JkJWu4aQXEyV7ifLgrw5jqrsr5/hf_20261026_081924_8f9477b8-bb73-4793-8904-7455edb7e3c7.mp4",
+      "width": 1920,
+      "height": 1080,
+      "duration": 10.042,
+      "visual_review": "Contact sheet reviewed at 0, 2, 4, 6, 8 seconds: macro football strike, airborne droplets and grass, floodlit pitch reveal."
     }
   },
-  "updated": "2026-10-09"
+  "updated": "2026-10-26"
 }

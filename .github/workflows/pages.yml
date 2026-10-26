@@ -1,8 +1,11 @@
 name: Publish complete centenary website
 on:
+  push:
+    branches: [main]
+    paths-ignore: [README.md]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 concurrency:
@@ -13,13 +16,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install media tools
+        run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+      - name: Recover completed media and extract original sequences
+        run: python3 scripts/resume-assets.py --source "$RUNNER_TEMP/pievese-media"
       - name: Block publication unless every original asset is complete
         run: python3 scripts/verify-assets.py
+      - name: Preserve verified media in the repository
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/manifest.json assets/*.mp4 frames/
+          if ! git diff --cached --quiet; then
+            git commit -m "Save three verified sequences and 450 frames [skip ci]"
+            git push origin HEAD:main
+          fi
       - name: Stage only public website files
         run: |
           mkdir -p public
           cp index.html styles.css app.js public/
-          cp -r assets frames public/
+          mkdir -p public/assets
+          cp assets/manifest.json assets/anchor.jpg assets/logo-pievese.png assets/*.mp4 public/assets/
+          cp -r frames public/
           touch public/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

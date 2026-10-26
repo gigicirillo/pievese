@@ -6,7 +6,9 @@ Sito statico HTML/CSS/JavaScript. **Al Campo alla Battaglia.**
 
 Logo originale del centenario recuperato e presente in `assets/logo-pievese.png`. Anchor Higgsfield basata sul logo originale generata e presente in `assets/anchor.jpg`.
 
-Due clip Higgsfield completate il 9 ottobre 2026: sweep `7acb5383-7bcf-4719-83bf-5257f35ad9ca`, opening `fcd7e3f6-c1a7-4361-8b75-b3cf3e60ab2a`. I link dei due MP4 completati sono conservati in `assets/generation-status.json`; scaricarli senza inviare nuove generazioni. La richiesta strike è stata respinta prima dell’avvio: **crediti Higgsfield esauriti** (`Out of credits on plus (monthly) plan in Private workspace.`). Entrambe le clip risultano 1920×1080, durata 10,041667 s. Controllate visivamente a 0, 3, 6 e 9 secondi: scansione luminosa e sollevamento dello stemma presenti. Il file `assets/generation-status.json` conserva gli identificativi reali e lo stato del lavoro. **Sito non pubblicato**: restano necessari la terza clip, l’estrazione dei 450 fotogrammi e la verifica finale.
+Tre clip Higgsfield completate: sweep `7acb5383-7bcf-4719-83bf-5257f35ad9ca`, opening `fcd7e3f6-c1a7-4361-8b75-b3cf3e60ab2a`, strike `8f9477b8-bb73-4793-8904-7455edb7e3c7`. La terza è stata generata il 26 ottobre 2026 con 160 crediti autorizzati. Tutte sono 1920×1080 e circa 10,04 secondi. Revisione dei provini: scansione luminosa, sollevamento dello stemma, calcio in macro e campo illuminato presenti. Link originali conservati in `assets/generation-status.json`: non rigenerare questi media.
+
+Il workflow su push a main recupera i tre MP4, estrae e verifica i 450 JPEG, salva i media verificati nella repository e distribuisce solo i file pubblici su GitHub Pages. La verifica browser della versione completa va registrata dopo il deploy.
 
 La verifica di pubblicazione fallisce intenzionalmente finché gli asset originali non sono completi. Non dichiarare verificati la scansione luminosa, l’apertura dello stemma, il colpo in macro, il campo finale o 60fps su dispositivi reali prima del controllo dei media e del browser.
 
@@ -24,7 +26,7 @@ Mobile usa MP4 muted in loop; con riduzione movimento il video rimane fermo, ris
 
 ## Riprendere le generazioni completate
 
-`python3 scripts/resume-assets.py --source /percorso/ai/media` recupera i due MP4 già completati senza consumare nuovi crediti. Quando è disponibile la terza clip, aggiungere `--strike /percorso/strike.mp4`: il comando verifica e prepara tutte e tre le sequenze tramite lo script esistente. Non pubblicare prima della verifica completa.
+`python3 scripts/resume-assets.py --source /percorso/ai/media` recupera i due MP4 già completati senza consumare nuovi crediti. Il comando recupera ora tutte e tre le clip completate e prepara le sequenze. È possibile passare `--strike /percorso/strike.mp4` per riusare una copia locale.
 
 ## Completare i media
 
@@ -44,4 +46,4 @@ Attualmente “Abbonati ora” apre il profilo ufficiale per chiedere informazio
 
 ## Pubblicazione e verifica finale
 
-Solo dopo la revisione visiva: impostare Pages su GitHub Actions e avviare “Publish complete centenary website”. Il workflow verifica tutti i 450 JPEG, le dimensioni 1600×900, gli MP4, anchor e logo. Pubblica soltanto i file pubblici, senza script e documentazione di lavoro. L’URL effettivo deve essere letto dall’esito del deploy, poi aperto e verificato su desktop/mobile, scroll inverso, loader e console.
+Il workflow “Publish complete centenary website” si avvia su push a main oppure manualmente con workflow_dispatch. Il workflow verifica tutti i 450 JPEG, le dimensioni 1600×900, gli MP4, anchor e logo. Pubblica soltanto i file pubblici, senza script e documentazione di lavoro. L’URL effettivo deve essere letto dall’esito del deploy, poi aperto e verificato su desktop/mobile, scroll inverso, loader e console.

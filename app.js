@@ -213,8 +213,9 @@ async function initialize() {
     manifest = await (await timedFetch('assets/manifest.json')).json();
     if (manifest.ready) {
       const crest = $('#crest');
-      crest.src = manifest.logo;
       crest.addEventListener('load', () => { crest.hidden = false; }, { once: true });
+      crest.src = manifest.logo;
+      if (crest.complete && crest.naturalWidth) crest.hidden = false;
       if (!fallback && typeof createImageBitmap === 'function') await preloadFrames();
       else activateFallback();
     } else activateFallback();

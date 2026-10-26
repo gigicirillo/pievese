@@ -20,6 +20,9 @@ for name in ('anchor.jpg', 'logo-pievese.png'):
 status = json.loads((ROOT / 'assets/generation-status.json').read_text())
 for name, job in status['clips'].items():
     target = source / f'{name}.mp4'
+    saved = ROOT / 'assets' / f'{name}.mp4'
+    if saved.is_file() and not target.exists():
+        shutil.copy2(saved, target)
     if job.get('status') == 'completed' and job.get('result_url') and not target.exists():
         temporary = target.with_suffix('.download')
         with urllib.request.urlopen(job['result_url'], timeout=120) as response, temporary.open('wb') as output:
@@ -31,6 +34,6 @@ if args.strike:
     if args.strike.resolve() != target:
         shutil.copy2(args.strike, target)
 if not (source / 'strike.mp4').is_file():
-    print('Completed clips recovered. Strike still requires a generation: Higgsfield credits were exhausted.', file=sys.stderr)
+    print('Completed clips recovered. A completed strike source is still required.', file=sys.stderr)
     sys.exit(1)
 subprocess.run([sys.executable, str(ROOT / 'scripts/prepare-assets.py'), '--source', str(source)], check=True)
