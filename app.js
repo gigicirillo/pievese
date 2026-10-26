@@ -106,8 +106,13 @@ function activateFallback() {
 function switchVideo(clip) {
   if (!manifest?.ready || activeVideo === clip.id) return;
   activeVideo = clip.id;
-  video.pause(); video.src = clip.video;
-  video.poster = manifest.anchor;
+  video.pause();
+  video.hidden = false;
+  video.src = video.canPlayType('video/mp4; codecs="avc1.42E01F"') || !clip.webm ? clip.video : clip.webm;
+  video.poster = `${clip.frames}0001.jpg`;
+  $('.stage').style.backgroundImage = `url("${video.poster}")`;
+  $('.stage').style.backgroundSize = 'cover';
+  $('.stage').style.backgroundPosition = 'center';
   // Reduced motion uses the MP4 as a still; deliberate user motion preferences
   // take precedence over autoplay. On ordinary mobile it loops silently.
   video.autoplay = !reduced.matches;

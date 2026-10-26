@@ -59,6 +59,17 @@ def main():
         frames = list(directory.glob('frame_*.jpg'))
         if len(frames) != 150 or any(p.stat().st_size == 0 for p in frames):
             raise ValueError(f'{clip}: expected exactly 150 nonempty JPEG frames')
+    # Keep original Full HD masters; encode browser-compatible mobile fallbacks.
+    for clip in manifest['clips']:
+        name = clip['id']
+        source_video = assets / f'{name}.mp4'
+        mobile_mp4 = assets / f'{name}-mobile.mp4'
+        mobile_webm = assets / f'{name}-mobile.webm'
+        common = ['ffmpeg', '-v', 'error', '-y', '-i', str(source_video), '-vf', 'scale=1280:-2', '-an']
+        subprocess.run(common + ['-c:v', 'libx264', '-profile:v', 'baseline', '-pix_fmt', 'yuv420p', '-preset', 'fast', '-crf', '23', '-movflags', '+faststart', str(mobile_mp4)], check=True)
+        subprocess.run(common + ['-c:v', 'libvpx-vp9', '-pix_fmt', 'yuv420p', '-deadline', 'realtime', '-cpu-used', '6', '-crf', '34', '-b:v', '0', str(mobile_webm)], check=True)
+        clip['video'] = f'assets/{mobile_mp4.name}'
+        clip['webm'] = f'assets/{mobile_webm.name}'
     manifest['ready'] = True
     manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
     subprocess.run([sys.executable, str(ROOT / 'scripts' / 'verify-assets.py')], check=True)
