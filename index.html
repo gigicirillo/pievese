@@ -10,18 +10,27 @@
   <script src="app.js" type="module"></script>
 </head>
 <body>
-  <a class="skip" href="#identita">Vai ai contenuti</a>
+  <a class="skip" href="#club">Vai ai contenuti</a>
   <div class="loader" role="status" aria-live="polite"><span class="eyebrow">USD PIEVESE · 1927—2027</span><div class="light-line"><i></i></div><span class="load-percent">0%</span></div>
   <header><a class="wordmark" href="#inizio" aria-label="USD Pievese, inizio">PIEVESE<span>USD · DAL 1927</span></a><button class="menu-toggle" aria-expanded="false" aria-controls="main-menu">Menu <span>☰</span></button><nav id="main-menu" aria-label="Menu principale"><a href="#squadra">La squadra</a><a href="#scuola-calcio">Scuola Calcio</a><a href="#categorie">Categorie</a><a href="#classifica">Classifica</a><a href="#abbonati" class="nav-cta">Abbonamenti <span>↗</span></a></nav></header>
   <aside class="match-card" aria-label="Prossimo match"><button class="match-close" aria-label="Chiudi prossimo match">×</button><span class="match-kicker"><i></i> Prossimo match</span><div class="match-teams"><span>PIEVESE</span><span class="match-vs">VS</span><span>DA DEFINIRE</span></div><p>Data e avversario in aggiornamento</p><a href="https://www.instagram.com/usd.pievese/" target="_blank" rel="noopener noreferrer">Segui gli aggiornamenti ↗</a></aside>
   <main>
     <div class="cinema" id="inizio">
-      <div class="stage" aria-hidden="true"><div class="media-window"><div class="stadium-lines"></div><div class="crest-orbit"><img class="animation-crest" src="assets/logo-pievese.png" alt="" fetchpriority="high"><i class="crest-glow"></i></div><canvas id="film"></canvas><video id="mobile-film" muted playsinline loop preload="metadata"></video><div class="media-caption"><span>1927 — 2027</span><span>Un secolo di appartenenza</span></div></div><div class="chapter-counter"><span id="chapter-number">01</span><span> / 03</span><i></i><span id="chapter-label">LA LUCE</span></div></div>
+      <div class="stage">
+        <div class="media-window" aria-hidden="true">
+          <div class="stadium-backdrop"></div>
+          <video id="mobile-film" muted playsinline preload="auto" poster="frames/strike/frame_0001.jpg"></video>
+          <div class="scene-wash"></div>
+          <div class="crest-orbit"><img class="animation-crest" src="assets/logo-pievese.png" alt="" fetchpriority="high"><i class="crest-glow"></i></div>
+        </div>
       <section class="chapter hero" data-clip="sweep" aria-label="La luce">
         <div class="chapter-content"><p class="eyebrow">AL CAMPO ALLA BATTAGLIA</p><h1 aria-label="Pievese USD"><span class="letters" aria-hidden="true">PIEVESE</span><span class="hero-second">USD</span></h1><div class="hero-bottom"><p>Un secolo di calcio.<br> Una sola appartenenza.</p><span class="edition">1927 <i>—</i> 2027<br><small>EDIZIONE CENTENARIO</small></span></div></div><div class="scroll-cue">SCORRI LA NOSTRA STORIA <i>↓</i></div>
       </section>
       <section class="chapter opening" data-clip="opening" id="identita" aria-label="L’apertura"><div class="chapter-content"><p class="eyebrow">01 / L’APPARTENENZA</p><h2>CENTO ANNI.<br>LO STESSO<br><em>CUORE.</em></h2><p class="intro">Ci sono colori che non si scelgono.<br>Si portano dentro.</p><div class="callout"><span>1927 — 2027</span><i></i><p>Il nostro stemma.<br>La nostra storia.</p></div></div></section>
       <section class="chapter strike" data-clip="strike" aria-label="Il colpo"><div class="chapter-content"><p class="eyebrow">02 / IL MOMENTO</p><h2>POI, TUTTO<br><em>COMINCIA.</em></h2><p class="intro">Un pallone. Un campo.<br>La voglia di esserci, ancora.</p></div></section>
+
+        <div class="chapter-counter" aria-hidden="true"><span id="chapter-number">01</span><span> / 03</span><i></i><span id="chapter-label">LA LUCE</span></div>
+      </div>
     </div>
     <section class="creed" aria-label="Il nostro credo"><div class="creed-sticky"><p class="eyebrow">03 / IL NOSTRO CREDO</p><div class="creed-lines"><p>Prima del fischio,<br><em>il silenzio.</em></p><p>Prima del gesto,<br><em>l’appartenenza.</em></p><p>Alla prima voce,<br><em>siamo squadra.</em></p></div><span class="small-index">PIEVESE · CENTENARIO</span></div></section>
     <section class="club" id="club"><div class="section-top"><p class="eyebrow">04 / L’ALBICELESTE DELL’UMBRIA</p><span>IL CLUB</span></div><h2>UNA CITTÀ.<br><em>I NOSTRI COLORI.</em></h2><div class="facts"><div><span>01 / IDENTITÀ</span><p>USD Pievese</p></div><div><span>02 / CASA</span><p>Città della Pieve</p></div><div><span>03 / COLORI</span><p>Bianco e celeste</p></div><div><span>04 / CENTENARIO</span><p>1927 — 2027</p></div></div><div class="social-row"><p>La squadra, le partite, la vita del club.<br>La nostra storia continua ogni giorno.</p><a href="https://www.instagram.com/usd.pievese/" target="_blank" rel="noopener noreferrer">SEGUI @USD.PIEVESE <span>↗</span></a></div></section>
@@ -36,4 +45,5 @@
   <noscript><style>.loader{display:none}.chapter-content{opacity:1}.creed-lines p{opacity:1;position:relative}.creed-sticky{height:auto}.creed{height:auto;padding:6rem 1.5rem}</style></noscript>
 </body>
 </html>
+
 

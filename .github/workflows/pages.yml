@@ -20,15 +20,17 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
       - name: Recover completed media and extract original sequences
         run: python3 scripts/resume-assets.py --source "$RUNNER_TEMP/pievese-media"
+      - name: Prepare full-screen stadium and continuous video playback
+        run: python3 scripts/prepare-cinema.py
       - name: Block publication unless every original asset is complete
         run: python3 scripts/verify-assets.py
       - name: Preserve verified media in the repository
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add assets/manifest.json assets/*.mp4 assets/*.webm frames/
+          git add assets/manifest.json assets/stadium.jpg assets/*.mp4 assets/*.webm frames/
           if ! git diff --cached --quiet; then
-            git commit -m "Save three verified sequences and 450 frames [skip ci]"
+            git commit -m "Save verified cinema media [skip ci]"
             git push origin HEAD:main
           fi
       - name: Stage only public website files
@@ -36,7 +38,7 @@ jobs:
           mkdir -p public
           cp index.html styles.css app.js public/
           mkdir -p public/assets
-          cp assets/manifest.json assets/anchor.jpg assets/logo-pievese.png assets/*.mp4 assets/*.webm public/assets/
+          cp assets/manifest.json assets/anchor.jpg assets/stadium.jpg assets/logo-pievese.png assets/*.mp4 assets/*.webm public/assets/
           cp -r assets/fonts public/assets/
           cp -r frames public/
           touch public/.nojekyll
