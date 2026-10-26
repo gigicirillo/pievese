@@ -32,6 +32,7 @@ function render(y){
  if(active!==index){
   const previous=active;active=index;
   stage.classList.toggle('is-strike',index===2);
+  document.body.classList.toggle('match-strike',index===2);
   $('#chapter-number').textContent=String(index+1).padStart(2,'0');
   $('#chapter-label').textContent=['LA LUCE','L’APPARTENENZA','IL MOMENTO'][index];
   if(index===2&&!reduced.matches){
@@ -46,6 +47,7 @@ function render(y){
   media.style.setProperty('--crest-light',String(1+Math.sin(p*Math.PI)*.08));
  }
  const outside=scrollY>=cinemaTop+cinema.offsetHeight||scrollY+innerHeight<cinemaTop;
+ document.body.classList.toggle('match-outside',outside);
  if(outside)video.pause();
  else if(index===2&&!reduced.matches&&video.paused&&!video.ended)video.play().catch(()=>{});
 }
