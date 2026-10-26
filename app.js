@@ -62,8 +62,8 @@ function closeMenu(){menu.classList.remove('is-open');menuButton.setAttribute('a
 menuButton.addEventListener('click',()=>{const open=menuButton.getAttribute('aria-expanded')!=='true';menuButton.setAttribute('aria-expanded',String(open));menu.classList.toggle('is-open',open);});
 menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
-$('.match-close').addEventListener('click',()=>{$('.match-card').hidden=true;try{sessionStorage.setItem('pievese-match-hidden','1');}catch{}});
-try{if(sessionStorage.getItem('pievese-match-hidden')==='1')$('.match-card').hidden=true;}catch{}
+$('.match-close').addEventListener('click',()=>{$('.match-card').hidden=true;try{sessionStorage.setItem(matchStorageKey,'1');}catch{}});
+
 function configureMembership() {
   if (!manifest?.membershipEndpoint || !manifest.privacyUrl) return;
   const endpoint = new URL(manifest.membershipEndpoint, location.href);
@@ -94,6 +94,48 @@ function configureMembership() {
 }
 
 
+
+let matchStorageKey='pievese-match-hidden';
+const SPORTS_SOURCE='https://www.tuttocampo.it/Umbria/PrimaCategoria/GironeB/Risultati';
+const sportsDate=value=>new Intl.DateTimeFormat('it-IT',{timeZone:'Europe/Rome',dateStyle:'short',timeStyle:'short'}).format(new Date(value));
+function sportsNode(tag,text,className){const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);if(className)n.className=className;return n;}
+function sourceLink(text,url=SPORTS_SOURCE){const n=sportsNode('a',text);n.href=url.startsWith('https://www.tuttocampo.it/')?url:SPORTS_SOURCE;n.target='_blank';n.rel='noopener noreferrer';return n;}
+async function loadSportsData(){
+ try{
+  const response=await fetch('assets/tuttocampo.json',{cache:'no-store',signal:AbortSignal.timeout(10000)});
+  if(!response.ok)throw new Error('Dati non disponibili');
+  const data=await response.json();
+  if(data.schemaVersion!==1||!Array.isArray(data.standings)||data.standings.length<8||!data.standings.some(r=>r.teamId==='770503')||!Number.isFinite(Date.parse(data.updatedAt)))throw new Error('Dati non validi');
+  const container=$('#standings-container'),table=sportsNode('table',undefined,'sports-table');
+  table.append(sportsNode('caption','Prima Categoria · Girone B · Umbria','sr-only'));
+  const head=sportsNode('thead'),header=sportsNode('tr');
+  ['Pos.','Squadra','Punti','G','V','N','P','GF','GS','DR'].forEach(text=>{const cell=sportsNode('th',text);cell.scope='col';header.append(cell);});head.append(header);table.append(head);
+  const body=sportsNode('tbody');
+  for(const row of data.standings){
+   const tr=sportsNode('tr');if(row.teamId==='770503')tr.className='pievese-row';
+   [row.position,row.team,row.points,row.played,row.wins,row.draws,row.losses,row.goalsFor,row.goalsAgainst,row.goalDifference].forEach((value,i)=>{const cell=sportsNode(i===1?'th':'td',value);if(i===1)cell.scope='row';tr.append(cell);});body.append(tr);
+  }
+  table.append(body);const scroll=sportsNode('div',undefined,'sports-table-scroll');scroll.tabIndex=0;scroll.setAttribute('role','region');scroll.setAttribute('aria-label','Classifica completa del Girone B');scroll.append(table);
+  const footer=sportsNode('div',undefined,'sports-footer'),old=Date.now()-Date.parse(data.updatedAt)>8*86400000;
+  footer.append(sportsNode('span',(old?'Ultimo dato disponibile: ':'Aggiornata: ')+sportsDate(data.updatedAt),'sports-stamp'),sourceLink('Fonte: Tuttocampo ↗'));
+  container.replaceChildren(scroll,footer);if(old)container.classList.add('sports-stale');
+  $('#sports-update-note').textContent='Aggiornamento automatico settimanale · Pievese evidenziata';
+  const m=data.nextMatch,today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  const future=m&&(m.homeId==='770503'||m.awayId==='770503')&&(m.kickoff?Date.parse(m.kickoff)>Date.now():m.date>=today);
+  const teams=$('.match-teams'),detail=$('.match-card p'),link=$('.match-card>a');
+  if(future){
+   const home=sportsNode('span',m.home),away=sportsNode('span',m.away);home.title=m.home;away.title=m.away;teams.replaceChildren(home,sportsNode('span','VS','match-vs'),away);
+   const dateLabel=new Intl.DateTimeFormat('it-IT',{timeZone:'Europe/Rome',weekday:'short',day:'numeric',month:'short'}).format(new Date(m.date+'T12:00:00Z'));
+   detail.replaceChildren(document.createTextNode(dateLabel+' · '+(m.time||'orario da confermare')),document.createElement('br'),document.createTextNode(m.round+'ª giornata · '+(m.homeId==='770503'?'In casa':'In trasferta')));
+   link.href=m.sourceUrl.startsWith('https://www.tuttocampo.it/')?m.sourceUrl:SPORTS_SOURCE;link.textContent='Dettagli su Tuttocampo ↗';matchStorageKey='pievese-match-hidden:'+m.sourceUrl;
+  }else{
+   teams.replaceChildren(sportsNode('span','PIEVESE'),sportsNode('span','·','match-vs'),sportsNode('span','IN AGGIORNAMENTO'));detail.textContent='Prossimo incontro in aggiornamento.';link.href=SPORTS_SOURCE;link.textContent='Consulta Tuttocampo ↗';matchStorageKey='pievese-match-hidden:'+data.updatedAt.slice(0,10);
+  }
+  $('.match-card').hidden=false;$('.match-card').title='Fonte: Tuttocampo · aggiornamento '+sportsDate(data.updatedAt);
+  try{if(sessionStorage.getItem(matchStorageKey)==='1')$('.match-card').hidden=true;}catch{}
+ }catch{$('#sports-update-note').textContent='Dati non disponibili. Consulta la fonte Tuttocampo.';}
+}
+
 async function initialize(){
  measure();
  try{
@@ -105,6 +147,7 @@ async function initialize(){
  }catch{}
  try{await Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1800))]);}catch{}
  configureMembership();
+ void loadSportsData();
  $('.load-percent').textContent='100%';$('.light-line i').style.width='100%';
  $('.loader').classList.add('done');$('.loader').setAttribute('aria-hidden','true');
  measure();wake();

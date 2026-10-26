@@ -36,3 +36,12 @@ Gli abbonamenti rimandano al profilo ufficiale Instagram per informazioni; nessu
 
 ## Verifiche
 Verifiche del layout immersivo: desktop 1440×900, mobile 390×844 e 375×667; nessuna sovrapposizione tra logo e titolo, nessun overflow orizzontale; menu fisso, invito allo scroll nascosto dopo il primo movimento, cambio testo entro un viewport; uscita della stage coincidente con il bordo della fascia blu; menu mobile e chiusura match funzionanti; nessun errore JavaScript. Dopo ogni deploy controllare nuovamente la pagina pubblica e le scene nel browser. Non dichiarare test su dispositivi fisici senza averli eseguiti.
+
+## Aggiornamento sportivo Tuttocampo
+Fonte unica: https://www.tuttocampo.it/Umbria/PrimaCategoria/GironeB/Risultati e le giornate pubbliche collegate.
+I dati verificati sono salvati in `assets/tuttocampo.json`: 16 squadre del Girone B, Pievese identificata da teamId `770503`, un solo prossimo incontro futuro. Il front-end evidenzia la Pievese e mostra data di aggiornamento e link alla fonte. Una partita già trascorsa non viene più presentata come prossima. La X del riquadro viene ricordata per quella specifica partita e non nasconde i nuovi incontri.
+
+Le richieste automatiche HTTP/Playwright da GitHub Actions hanno restituito 403 nel test del 26 ottobre 2026. Non aggirare le protezioni: consultare la pagina pubblica con il browser disponibile, senza accedere al calendario riservato. I link pubblici `#match_days_selection a[data-match-day-id]` permettono di leggere le giornate successive. L'attività settimanale ChatGPT aggiorna solo questo JSON via GitHub e il push pubblica il sito attraverso il workflow esistente. In caso di fonte inaccessibile o dati incoerenti conservare gli ultimi dati validi e segnalare il problema.
+
+Contratto JSON: schemaVersion=1, sourceUrl, league, updatedAt (ISO UTC), standings[] con position, teamId (stringa), team, points, played, wins, draws, losses, goalsFor, goalsAgainst, goalDifference; nextMatch con home, away, homeId, awayId, round, date (YYYY-MM-DD), time (ora italiana), kickoff (ISO UTC), sourceUrl, oppure null se non è pubblicato alcun incontro futuro.
+Validare unicità delle squadre, presenza della Pievese, G=V+N+P, DR=GF-GS, ordine della fonte; non dedurre risultati né inventare orari. I test sono in `scripts/test-tuttocampo.cjs`.
