@@ -86,3 +86,5 @@ header{position:fixed;background:rgba(244,249,252,.88);backdrop-filter:blur(22px
  .match-kicker{font-size:13px}.match-teams{font-size:23px;margin:9px 0 5px}
  .match-card p{font-size:11px}.match-card>a{font-size:11px}
 }
+
+body:not(.match-strike) .match-card{color:var(--blue);text-shadow:none;background:linear-gradient(135deg,rgba(244,249,252,.32),rgba(210,235,248,.18))}body:not(.match-strike) .match-vs{color:var(--blue)}body:not(.match-strike) .match-card>a{border-color:#153a5666}
