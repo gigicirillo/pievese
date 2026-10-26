@@ -67,3 +67,22 @@ header{position:fixed;background:rgba(244,249,252,.88);backdrop-filter:blur(22px
 
 /* Keep intrinsic photo ratios inside narrow mobile grid tracks. */
 .section-grid>*,.category-placeholder>*{min-width:0}.photo-placeholder{width:100%;max-width:100%}
+
+/* Floating, transparent match panel stays with the cinematic scenes. */
+.match-card{position:fixed;color:var(--white);background:linear-gradient(135deg,rgba(210,235,248,.14),rgba(13,41,62,.18));border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(9px) saturate(115%);-webkit-backdrop-filter:blur(9px) saturate(115%);box-shadow:0 16px 48px #05162624,inset 0 1px rgba(255,255,255,.16);text-shadow:0 1px 8px #05162680}
+.match-close{color:inherit}.match-card>a{border-color:#ffffff66}.match-vs{color:#cbe8f5}
+.match-outside .match-card{visibility:hidden;pointer-events:none}
+@media(min-width:761px){
+ .match-card{top:112px;right:4vw;width:340px;padding:25px 28px}
+ .match-kicker{font-size:17px}.match-teams{font-size:29px;margin:24px 0 18px;gap:18px}
+ .match-card p{font-size:14px;line-height:1.7;margin:0 0 18px}.match-card>a{font-size:15px}
+ .match-strike .match-card{top:50%;right:10vw;transform:translateY(-40%);width:min(38vw,520px);padding:38px}
+ .match-strike .match-teams{font-size:clamp(30px,2.7vw,46px);margin:34px 0 24px}
+ .match-strike .match-kicker{font-size:20px}.match-strike .match-card p{font-size:16px}
+ .match-close{top:10px;right:12px}
+}
+@media(max-width:760px){
+ .match-card{top:95px;padding:14px 18px}
+ .match-kicker{font-size:13px}.match-teams{font-size:23px;margin:9px 0 5px}
+ .match-card p{font-size:11px}.match-card>a{font-size:11px}
+}
