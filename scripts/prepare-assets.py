@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate supplied original media, extract exactly 150 JPEG frames per clip.
+"""Validate supplied original media, extract exactly 240 JPEG frames per clip.
 
 Usage: python3 scripts/prepare-assets.py --source /absolute/path/to/media
 Source must contain logo-pievese.png, anchor.jpg, sweep.mp4, opening.mp4,
@@ -44,6 +44,7 @@ def main():
     assets.mkdir(exist_ok=True)
     manifest_path = assets / 'manifest.json'
     manifest = json.loads(manifest_path.read_text())
+    manifest['frameCount'] = 240
     manifest['ready'] = False
     manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
     for name in required:
@@ -55,10 +56,10 @@ def main():
         directory.mkdir(parents=True, exist_ok=True)
         for old in directory.glob('frame_*.jpg'):
             old.unlink()
-        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', str(assets / f'{clip}.mp4'), '-vf', 'fps=15,scale=1600:-2', '-frames:v', '150', '-q:v', '3', '-start_number', '1', str(directory / 'frame_%04d.jpg')], check=True)
+        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', str(assets / f'{clip}.mp4'), '-vf', 'fps=24,scale=1600:-2', '-frames:v', '240', '-q:v', '3', '-start_number', '1', str(directory / 'frame_%04d.jpg')], check=True)
         frames = list(directory.glob('frame_*.jpg'))
-        if len(frames) != 150 or any(p.stat().st_size == 0 for p in frames):
-            raise ValueError(f'{clip}: expected exactly 150 nonempty JPEG frames')
+        if len(frames) != 240 or any(p.stat().st_size == 0 for p in frames):
+            raise ValueError(f'{clip}: expected exactly 240 nonempty JPEG frames')
     # Keep original Full HD masters; encode browser-compatible mobile fallbacks.
     for clip in manifest['clips']:
         name = clip['id']
@@ -73,7 +74,7 @@ def main():
     manifest['ready'] = True
     manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
     subprocess.run([sys.executable, str(ROOT / 'scripts' / 'verify-assets.py')], check=True)
-    print('450 frames verified. Visual review remains required before deployment.')
+    print('720 frames verified. Visual review remains required before deployment.')
 
 if __name__ == '__main__':
     try:

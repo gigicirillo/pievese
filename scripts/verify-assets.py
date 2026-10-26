@@ -31,7 +31,7 @@ def main():
     manifest = json.loads((ROOT / 'assets/manifest.json').read_text())
     if manifest.get('ready') is not True:
         raise ValueError('Deployment blocked: original Higgsfield assets are incomplete.')
-    if manifest['frameCount'] != 150 or manifest['width'] != 1600:
+    if manifest['frameCount'] != 240 or manifest['width'] != 1600:
         raise ValueError('Invalid frame specification')
     if [c['id'] for c in manifest['clips']] != ['sweep', 'opening', 'strike']:
         raise ValueError('Expected sweep, opening, strike in order')
@@ -43,13 +43,13 @@ def main():
         video = ROOT / clip['video']
         if not video.is_file() or video.stat().st_size == 0:
             raise ValueError(f'Missing {clip["id"]} MP4 fallback')
-        for index in range(1, 151):
+        for index in range(1, 241):
             frame = ROOT / f'{clip["frames"]}{index:04}.jpg'
             if not frame.is_file() or frame.stat().st_size == 0:
                 raise ValueError(f'Missing frame: {frame}')
             if jpeg_size(frame) != (1600, 900):
                 raise ValueError(f'Wrong dimensions: {frame}')
-    print('Verified 450 JPEGs at 1600×900, 3 MP4s, anchor and original logo.')
+    print('Verified 720 JPEGs at 1600×900, 3 MP4s, anchor and original logo.')
 
 if __name__ == '__main__':
     try:

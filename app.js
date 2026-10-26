@@ -1,189 +1,102 @@
-const $ = (selector) => document.querySelector(selector);
-const clamp = (value, min = 0, max = 1) => Math.max(min, Math.min(max, value));
-const loader = $('.loader');
-const percent = $('.load-percent');
-const light = $('.light-line i');
-const canvas = $('#film');
-const ctx = canvas.getContext('2d', { alpha: false });
-const video = $('#mobile-film');
-const chapters = [...document.querySelectorAll('.chapter')];
-const creed = $('.creed');
-const creedLines = [...document.querySelectorAll('.creed-lines p')];
-const letters = [...$('.letters').textContent].map((letter) => {
-  const span = document.createElement('span');
-  span.textContent = letter;
-  return span;
-});
-$('.letters').replaceChildren(...letters);
-const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-const mobile = matchMedia('(max-width: 760px)');
-const connection = navigator.connection;
-let fallback = reduced.matches || mobile.matches || !!connection?.saveData;
-let manifest;
-let lenis;
-let raf = 0;
-let smoothScroll = scrollY;
-let lastTime = 0;
-let currentKey = '';
-let desiredKey = '';
-let activeVideo = '';
-let geometry = [];
-let creedBounds;
-let membershipBounds;
-let generation = 0;
-const blobs = new Map();
-const decoded = new Map();
-const decoding = new Map();
-const MAX_DECODED = 12;
-const visibility = (progress) => clamp(progress / .08) * clamp((1 - progress) / .12);
-function progress(rect, position) {
-  return clamp((position - rect.top) / Math.max(1, rect.height - innerHeight));
+const $=s=>document.querySelector(s);
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const canvas=$('#film'),ctx=canvas.getContext('2d',{alpha:false});
+const stage=$('.stage'),video=$('#mobile-film'),media=$('.media-window');
+const chapters=[...document.querySelectorAll('.chapter')];
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+const mobile=matchMedia('(max-width:760px)');
+let fallback=mobile.matches||reduced.matches||!!navigator.connection?.saveData;
+let manifest,rects=[],smoothY=scrollY,lastTime=0,raf=0,active=-1,wanted=1,lastPaint='',pending=0;
+const frames=new Map(),inFlight=new Set(),failed=new Set();
+const CACHE_LIMIT=20,CONCURRENCY=4;
+let videoStarted=false;
+function progress(rect,y){return clamp((y-rect.top)/Math.max(1,rect.height-innerHeight));}
+function measure(){
+ rects=chapters.map(el=>({top:el.getBoundingClientRect().top+scrollY,height:el.offsetHeight}));
+ const box=media.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,1.5);
+ canvas.width=Math.round(box.width*dpr);canvas.height=Math.round(box.height*dpr);lastPaint='';wake();
 }
-function measure() {
-  geometry = chapters.map((element) => ({ top: element.getBoundingClientRect().top + scrollY, height: element.offsetHeight }));
-  creedBounds = { top: creed.getBoundingClientRect().top + scrollY, height: creed.offsetHeight };
-  membershipBounds = { top: $('.membership').getBoundingClientRect().top + scrollY, height: $('.membership').offsetHeight };
-  const dpr = Math.min(devicePixelRatio || 1, 1.5);
-  canvas.width = Math.round(innerWidth * dpr);
-  canvas.height = Math.round(innerHeight * dpr);
-  currentKey = '';
-  wake();
+function wake(){if(!raf&&!document.hidden)raf=requestAnimationFrame(tick);}
+function touchFrame(n){const f=frames.get(n);if(f){frames.delete(n);frames.set(n,f);}return f;}
+function cover(bitmap,alpha=1){
+ const s=Math.max(canvas.width/bitmap.width,canvas.height/bitmap.height);
+ ctx.globalAlpha=alpha;ctx.drawImage(bitmap,(canvas.width-bitmap.width*s)/2,(canvas.height-bitmap.height*s)/2,bitmap.width*s,bitmap.height*s);ctx.globalAlpha=1;
 }
-async function timedFetch(url, timeout = 18000) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeout);
-  try {
-    const response = await fetch(url, { signal: controller.signal });
-    if (!response.ok) throw new Error(`HTTP ${response.status}: ${url}`);
-    return response;
-  } finally { clearTimeout(timer); }
-}
-function updateLoader(value) {
-  const amount = Math.round(value);
-  percent.textContent = `${amount}%`;
-  light.style.width = `${amount}%`;
-}
-async function decode(key) {
-  if (decoded.has(key)) {
-    const bitmap = decoded.get(key);
-    decoded.delete(key); decoded.set(key, bitmap);
-    return bitmap;
+function frameUrl(n){return manifest.clips[2].frames+String(n).padStart(4,'0')+'.jpg';}
+async function fetchFrame(n){
+ if(frames.has(n)||inFlight.has(n)||failed.has(n)||n<1||n>manifest.frameCount)return;
+ inFlight.add(n);pending++;
+ try{
+  const res=await fetch(frameUrl(n),{signal:AbortSignal.timeout(12000)});
+  if(!res.ok)throw new Error('Frame '+res.status);
+  const bitmap=await createImageBitmap(await res.blob());
+  frames.set(n,bitmap);
+  while(frames.size>CACHE_LIMIT){
+   const farthest=[...frames.keys()].sort((a,b)=>Math.abs(b-wanted)-Math.abs(a-wanted))[0];
+   frames.get(farthest).close();frames.delete(farthest);
   }
-  if (decoding.has(key)) return decoding.get(key);
-  if (!blobs.has(key)) return null;
-  const promise = createImageBitmap(blobs.get(key)).then((bitmap) => {
-    decoded.set(key, bitmap);
-    while (decoded.size > MAX_DECODED) {
-      const oldest = decoded.keys().next().value;
-      decoded.get(oldest).close(); decoded.delete(oldest);
-    }
-    return bitmap;
-  }).finally(() => decoding.delete(key));
-  decoding.set(key, promise);
-  return promise;
+ }catch{failed.add(n);}
+ finally{inFlight.delete(n);pending--;wake();}
 }
-function paint(bitmap, key) {
-  if (!bitmap || currentKey === key || key !== desiredKey) return;
-  const scale = Math.max(canvas.width / bitmap.width, canvas.height / bitmap.height);
-  const width = bitmap.width * scale, height = bitmap.height * scale;
-  ctx.drawImage(bitmap, (canvas.width - width) / 2, (canvas.height - height) / 2, width, height);
-  currentKey = key;
+function scheduleFrames(){
+ if(!manifest?.ready||fallback)return;
+ const base=Math.floor(wanted),list=[base,base+1];
+ for(let i=1;i<=7;i++)list.push(base+i+1,base-i);
+ for(const n of list){
+  if(pending>=CONCURRENCY)break;
+  if(n>=1&&n<=manifest.frameCount&&!frames.has(n)&&!inFlight.has(n)&&!failed.has(n))void fetchFrame(n);
+ }
 }
-async function drawFrame(clip, frame) {
-  const key = `${clip}/${frame}`;
-  desiredKey = key;
-  if (key === currentKey) return;
-  try { paint(await decode(key), key); }
-  catch { activateFallback(); }
+function draw(){
+ const low=Math.floor(wanted),high=Math.min(manifest.frameCount,low+1),fraction=wanted-low;
+ const a=touchFrame(low),b=touchFrame(high);
+ if(!a&&failed.has(low)&&!pending){setFallback();startVideo();return;}
+ if(a){const key=low+':'+(b?fraction.toFixed(3):'single');if(lastPaint!==key){cover(a);if(b&&high!==low)cover(b,fraction);lastPaint=key;}}
+ else if(!lastPaint&&frames.size){const near=[...frames.keys()].sort((a,b)=>Math.abs(a-wanted)-Math.abs(b-wanted))[0];cover(frames.get(near));lastPaint='near'+near;}
+ scheduleFrames();
 }
-function activateFallback() {
-  fallback = true;
-  document.body.classList.add('fallback-mode');
-  lenis?.destroy(); lenis = undefined;
-  smoothScroll = scrollY;
-  measure();
+function startVideo(){
+ if(videoStarted||!manifest?.ready)return;
+ videoStarted=true;
+ const clip=manifest.clips[2];
+ video.src=video.canPlayType('video/mp4; codecs="avc1.42E01F"')||!clip.webm?clip.video:clip.webm;
+ video.poster=frameUrl(1);video.load();
+ if(!reduced.matches)video.play().catch(()=>{});
 }
-function switchVideo(clip) {
-  if (!manifest?.ready || activeVideo === clip.id) return;
-  activeVideo = clip.id;
+function render(y){
+ if(!rects.length)return;
+ let index=0;rects.forEach((r,i)=>{if(y>=r.top)index=i;const p=progress(r,y);const visibility=i===0?clamp((1-p)/.15):clamp(p/.10)*clamp((1-p)/.15);chapters[i].style.setProperty('--visibility',visibility);chapters[i].style.setProperty('--rise',((1-visibility)*12)+'px');});
+ const p=progress(rects[index],y);
+ if(active!==index){active=index;stage.classList.toggle('is-strike',index===2);$('#chapter-number').textContent=String(index+1).padStart(2,'0');$('#chapter-label').textContent=['LA LUCE','L’APPARTENENZA','IL MOMENTO'][index];}
+ if(index<2){
+  const turn=reduced.matches?0:(index===0?-4+p*8:4-p*8);
+  const lift=reduced.matches?0:(index===0?Math.sin(p*Math.PI)*-7:-p*28);
+  media.style.setProperty('--crest-turn',turn+'deg');
+  media.style.setProperty('--crest-y',lift+'px');
+  media.style.setProperty('--crest-scale',index===0?1:1-p*.09);
+  media.style.setProperty('--sweep',(-110+p*240)+'%');
   video.pause();
-  video.hidden = false;
-  video.src = video.canPlayType('video/mp4; codecs="avc1.42E01F"') || !clip.webm ? clip.video : clip.webm;
-  video.poster = `${clip.frames}0001.jpg`;
-  $('.stage').style.backgroundImage = `url("${video.poster}")`;
-  $('.stage').style.backgroundSize = 'cover';
-  $('.stage').style.backgroundPosition = 'center';
-  // Reduced motion uses the MP4 as a still; deliberate user motion preferences
-  // take precedence over autoplay. On ordinary mobile it loops silently.
-  video.autoplay = !reduced.matches;
-  video.load();
-  if (!reduced.matches) video.play().catch(() => {});
+ }else if(manifest?.ready){
+  if(fallback){startVideo();if(!reduced.matches&&video.paused)video.play().catch(()=>{});}
+  else{wanted=1+p*(manifest.frameCount-1);draw();}
+ }
 }
-function render(position) {
-  let active = 0;
-  geometry.forEach((rect, index) => {
-    if (position >= rect.top) active = index;
-    const p = progress(rect, position);
-    const visible = index === 0 ? clamp((1 - p) / .12) : visibility(p);
-    chapters[index].style.setProperty('--visibility', String(visible));
-    chapters[index].style.setProperty('--rise', `${(1 - visible) * 16}px`);
-  });
-  const p = progress(geometry[active], position);
-  const clip = manifest?.clips?.[active];
-  if (clip && manifest.ready) {
-    if (fallback) switchVideo(clip);
-    else drawFrame(clip.id, Math.round(p * (manifest.frameCount - 1)) + 1);
-  }
-  $('#chapter-number').textContent = String(active + 1).padStart(2, '0');
-  $('#chapter-label').textContent = ['LA LUCE', 'L’APPARTENENZA', 'IL MOMENTO'][active];
-  const heroProgress = progress(geometry[0], position);
-  letters.forEach((letter, i) => {
-    const v = 1;
-    letter.style.setProperty('--letter-opacity', String(v));
-    letter.style.setProperty('--letter-rise', `${(1 - v) * 12}px`);
-  });
-  const cp = progress(creedBounds, position);
-  creedLines.forEach((line, i) => {
-    const distance = Math.abs(cp * 2.8 - (i + .2));
-    const v = clamp(1 - distance / .6);
-    line.style.setProperty('--line-opacity', String(v));
-    line.style.setProperty('--line-rise', `${(1 - v) * 20}px`);
-  });
-  const mp = clamp((position + innerHeight - membershipBounds.top) / innerHeight);
-  $('.final-crest').style.setProperty('--lift', `${fallback ? 0 : mp * 25}px`);
+function tick(time){
+ raf=0;if(document.hidden)return;
+ const dt=Math.min(50,lastTime?time-lastTime:16.7);lastTime=time;
+ smoothY=reduced.matches?scrollY:smoothY+(scrollY-smoothY)*(1-Math.exp(-dt/95));
+ if(Math.abs(smoothY-scrollY)<.08)smoothY=scrollY;
+ render(smoothY);
+ if(Math.abs(smoothY-scrollY)>.08||pending>0)wake();
 }
-function tick(time) {
-  raf = 0;
-  if (document.hidden) return;
-  lenis?.raf(time);
-  const dt = Math.min(64, lastTime ? time - lastTime : 16.7);
-  lastTime = time;
-  const target = scrollY;
-  smoothScroll = fallback ? target : smoothScroll + (target - smoothScroll) * (1 - Math.exp(-dt / 65));
-  if (Math.abs(target - smoothScroll) < .15) smoothScroll = target;
-  render(smoothScroll);
-  if (lenis || Math.abs(target - smoothScroll) > .15) wake();
-}
-function wake() { if (!raf && !document.hidden) raf = requestAnimationFrame(tick); }
-async function preloadFrames() {
-  const tasks = manifest.clips.flatMap((clip) => Array.from({ length: manifest.frameCount }, (_, n) => ({ key: `${clip.id}/${n + 1}`, url: `${clip.frames}${String(n + 1).padStart(4, '0')}.jpg` })));
-  let next = 0, complete = 0, failed = false;
-  await Promise.all(Array.from({ length: 6 }, async () => {
-    while (next < tasks.length && !failed) {
-      const task = tasks[next++];
-      try {
-        const response = await timedFetch(task.url);
-        const blob = await response.blob();
-        if (!blob.type.startsWith('image/')) throw new Error('Invalid frame');
-        blobs.set(task.key, blob);
-        complete++;
-        updateLoader(complete / tasks.length * 99);
-      } catch { failed = true; }
-    }
-  }));
-  if (failed) { blobs.clear(); activateFallback(); return; }
-  await decode(`${manifest.clips[0].id}/1`);
-}
+function setFallback(){fallback=true;document.body.classList.add('fallback-mode');measure();}
+const menu=$('#main-menu'),menuButton=$('.menu-toggle');
+function closeMenu(){menu.classList.remove('is-open');menuButton.setAttribute('aria-expanded','false');}
+menuButton.addEventListener('click',()=>{const open=menuButton.getAttribute('aria-expanded')!=='true';menuButton.setAttribute('aria-expanded',String(open));menu.classList.toggle('is-open',open);});
+menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
+$('.match-close').addEventListener('click',()=>{$('.match-card').hidden=true;try{sessionStorage.setItem('pievese-match-hidden','1');}catch{}});
+try{if(sessionStorage.getItem('pievese-match-hidden')==='1')$('.match-card').hidden=true;}catch{}
 function configureMembership() {
   if (!manifest?.membershipEndpoint || !manifest.privacyUrl) return;
   const endpoint = new URL(manifest.membershipEndpoint, location.href);
@@ -212,31 +125,29 @@ function configureMembership() {
     finally { button.disabled = false; }
   });
 }
-async function initialize() {
-  const token = ++generation;
-  try {
-    manifest = await (await timedFetch('assets/manifest.json')).json();
-    if (manifest.ready) {
-      const crest = $('#crest');
-      crest.addEventListener('load', () => { crest.hidden = false; }, { once: true });
-      crest.src = manifest.logo;
-      if (crest.complete && crest.naturalWidth) crest.hidden = false;
-      if (!fallback && typeof createImageBitmap === 'function') await preloadFrames();
-      else activateFallback();
-    } else activateFallback();
-    configureMembership();
-  } catch { activateFallback(); }
-  if (token !== generation) return;
-  if (!fallback && window.Lenis) lenis = new window.Lenis({ lerp: .09, smoothWheel: true, anchors: true });
-  measure();
-  updateLoader(100);
-  requestAnimationFrame(() => requestAnimationFrame(() => { loader.classList.add('done'); loader.setAttribute('aria-hidden', 'true'); }));
-  wake();
+
+async function initialize(){
+ measure();
+ try{
+  const response=await fetch('assets/manifest.json',{signal:AbortSignal.timeout(10000)});
+  if(!response.ok)throw new Error('Manifest unavailable');
+  manifest=await response.json();
+  $('#crest').src=manifest.logo;$('#crest').hidden=false;
+  if(fallback)setFallback();
+  else if(typeof createImageBitmap!=='function')setFallback();
+  else{wanted=1;scheduleFrames();}
+ }catch{setFallback();}
+ try{await Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1800))]);}catch{}
+ configureMembership();
+ $('.load-percent').textContent='100%';$('.light-line i').style.width='100%';
+ $('.loader').classList.add('done');$('.loader').setAttribute('aria-hidden','true');
+ measure();wake();
 }
-addEventListener('scroll', wake, { passive: true });
-addEventListener('resize', measure, { passive: true });
-document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(raf); raf = 0; video.pause(); } else { lastTime = 0; wake(); if (fallback && manifest?.ready && !reduced.matches) video.play().catch(() => {}); } });
-reduced.addEventListener('change', () => { if (reduced.matches) { activateFallback(); video.pause(); } });
-mobile.addEventListener('change', () => { if (mobile.matches) activateFallback(); });
-video.addEventListener('error', () => { video.hidden = true; });
+addEventListener('scroll',wake,{passive:true});addEventListener('resize',measure,{passive:true});
+new ResizeObserver(measure).observe(media);
+document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0;video.pause();}else{lastTime=0;wake();}});
+mobile.addEventListener('change',()=>{if(mobile.matches)setFallback();});
+reduced.addEventListener('change',()=>{if(reduced.matches){setFallback();video.pause();}wake();});
+video.addEventListener('error',()=>{video.hidden=true;media.style.backgroundImage='url("'+frameUrl(1)+'")';media.style.backgroundSize='cover';});
 initialize();
+
