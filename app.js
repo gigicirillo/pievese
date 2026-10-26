@@ -133,7 +133,7 @@ function render(position) {
   $('#chapter-label').textContent = ['LA LUCE', 'L’APPARTENENZA', 'IL MOMENTO'][active];
   const heroProgress = progress(geometry[0], position);
   letters.forEach((letter, i) => {
-    const v = clamp((heroProgress + .09 - i * .022) / .05);
+    const v = 1;
     letter.style.setProperty('--letter-opacity', String(v));
     letter.style.setProperty('--letter-rise', `${(1 - v) * 12}px`);
   });
