@@ -1,0 +1,42 @@
+name: Update Tuttocampo sports data
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/update-tuttocampo.cjs
+      - scripts/test-tuttocampo.cjs
+      - .github/workflows/update-tuttocampo.yml
+permissions:
+  contents: write
+concurrency:
+  group: tuttocampo-data
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate dates, standings and next-match selection
+        run: node --test scripts/test-tuttocampo.cjs
+      - name: Install the public-page reader
+        run: |
+          npm install --no-save --package-lock=false playwright
+          npx playwright install --with-deps chromium
+      - name: Read and validate the public Tuttocampo pages
+        run: node scripts/update-tuttocampo.cjs
+      - name: Save only verified sports data
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/tuttocampo.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update Girone B standings and next Pievese match"
+            git push origin HEAD:main
+          fi
