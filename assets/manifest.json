@@ -7,18 +7,21 @@
   "clips": [
     {
       "id": "sweep",
-      "video": "assets/sweep.mp4",
-      "frames": "frames/sweep/frame_"
+      "video": "assets/sweep-mobile.mp4",
+      "frames": "frames/sweep/frame_",
+      "webm": "assets/sweep-mobile.webm"
     },
     {
       "id": "opening",
-      "video": "assets/opening.mp4",
-      "frames": "frames/opening/frame_"
+      "video": "assets/opening-mobile.mp4",
+      "frames": "frames/opening/frame_",
+      "webm": "assets/opening-mobile.webm"
     },
     {
       "id": "strike",
-      "video": "assets/strike.mp4",
-      "frames": "frames/strike/frame_"
+      "video": "assets/strike-mobile.mp4",
+      "frames": "frames/strike/frame_",
+      "webm": "assets/strike-mobile.webm"
     }
   ],
   "membershipEndpoint": null,
