@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "sourceUrl": "https://www.tuttocampo.it/Umbria/PrimaCategoria/GironeB/Risultati",
   "league": "Prima Categoria · Girone B · Umbria",
-  "updatedAt": "2026-10-26T10:01:56.141Z",
+  "updatedAt": "2026-10-27T07:07:24.906Z",
   "standings": [
     {
       "position": 1,
@@ -71,6 +71,19 @@
     },
     {
       "position": 6,
+      "teamId": "1199658",
+      "team": "San Sisto 2023",
+      "points": 12,
+      "played": 8,
+      "wins": 3,
+      "draws": 3,
+      "losses": 2,
+      "goalsFor": 15,
+      "goalsAgainst": 12,
+      "goalDifference": 3
+    },
+    {
+      "position": 7,
       "teamId": "1199660",
       "team": "Papiano 1965",
       "points": 12,
@@ -83,7 +96,7 @@
       "goalDifference": 3
     },
     {
-      "position": 7,
+      "position": 8,
       "teamId": "770185",
       "team": "San Marco Juventina F.C.",
       "points": 12,
@@ -94,19 +107,6 @@
       "goalsFor": 12,
       "goalsAgainst": 11,
       "goalDifference": 1
-    },
-    {
-      "position": 8,
-      "teamId": "1199658",
-      "team": "San Sisto 2023",
-      "points": 11,
-      "played": 7,
-      "wins": 3,
-      "draws": 2,
-      "losses": 2,
-      "goalsFor": 12,
-      "goalsAgainst": 9,
-      "goalDifference": 3
     },
     {
       "position": 9,
@@ -177,13 +177,13 @@
       "position": 14,
       "teamId": "1137634",
       "team": "Moiano",
-      "points": 6,
-      "played": 7,
+      "points": 7,
+      "played": 8,
       "wins": 1,
-      "draws": 3,
+      "draws": 4,
       "losses": 3,
-      "goalsFor": 5,
-      "goalsAgainst": 10,
+      "goalsFor": 8,
+      "goalsAgainst": 13,
       "goalDifference": -5
     },
     {
