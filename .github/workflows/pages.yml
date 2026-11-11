@@ -56,6 +56,7 @@ jobs:
           cp assets/manifest.json assets/anchor.jpg assets/stadium.jpg assets/logo-pievese.png assets/*.mp4 assets/*.webm public/assets/
           cp assets/tuttocampo.json public/assets/
           cp -r assets/fonts public/assets/
+          cp -r assets/photos public/assets/
           cp -r frames public/
           touch public/.nojekyll
       - uses: actions/configure-pages@v5

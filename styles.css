@@ -88,3 +88,11 @@ header{position:fixed;background:rgba(244,249,252,.88);backdrop-filter:blur(22px
 }
 
 body:not(.match-strike) .match-card{color:var(--blue);text-shadow:none;background:linear-gradient(135deg,rgba(244,249,252,.32),rgba(210,235,248,.18))}body:not(.match-strike) .match-vs{color:var(--blue)}body:not(.match-strike) .match-card>a{border-color:#153a5666}
+
+/* Team portrait: preserve the image proportions and keep the copy separate. */
+.team-portrait{position:relative;isolation:isolate;display:grid;justify-items:center;align-items:end;overflow:hidden;margin:0;min-height:300px;height:clamp(300px,34vw,470px);border:1px solid #153a5629;border-radius:24px;background:radial-gradient(ellipse at 50% 32%,#fff 0%,#eaf6fc 46%,#c4dfed 100%)}
+.team-portrait-year{position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);color:#153a5612;font:inherit;font-size:clamp(90px,14vw,210px);font-weight:800;line-height:1;white-space:nowrap;pointer-events:none}
+.team-portrait img{position:relative;display:block;width:auto;height:94%;max-width:95%;object-fit:contain;object-position:bottom;filter:drop-shadow(0 12px 20px #153a5629)}
+.team-portrait figcaption{position:absolute;right:13px;bottom:13px;padding:7px 10px;border-radius:6px;background:#f4f9fc;color:#153a56;font-size:9px;letter-spacing:.12em}
+.team-portrait figcaption span{margin:0 .3em}
+@media(max-width:760px){.team-portrait{height:clamp(280px,92vw,400px);min-height:0;border-radius:17px}.team-portrait-year{font-size:29vw}}
