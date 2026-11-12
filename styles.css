@@ -96,3 +96,11 @@ body:not(.match-strike) .match-card{color:var(--blue);text-shadow:none;backgroun
 .team-portrait figcaption{position:absolute;right:13px;bottom:13px;padding:7px 10px;border-radius:6px;background:#f4f9fc;color:#153a56;font-size:9px;letter-spacing:.12em}
 .team-portrait figcaption span{margin:0 .3em}
 @media(max-width:760px){.team-portrait{height:clamp(280px,92vw,400px);min-height:0;border-radius:17px}.team-portrait-year{font-size:29vw}}
+
+/* Settore giovanile */
+.category-photo{margin:0;overflow:hidden;border:1px solid #c7d9e4;border-radius:16px;background:#e3eff5}
+.category-photo img{display:block;width:100%;height:auto}
+.category-copy dl{margin:1.25rem 0 0;max-width:420px}
+.category-copy dl>div{padding:12px 0;border-top:1px solid #c7d9e4}
+.category-copy dt{font-weight:700;color:var(--blue)}
+.category-copy dd{margin:4px 0 0;color:#4c687d;line-height:1.55}
