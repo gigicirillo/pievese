@@ -97,18 +97,39 @@ body:not(.match-strike) .match-card{color:var(--blue);text-shadow:none;backgroun
 .category-copy dt{font-weight:700;color:var(--blue)}
 .category-copy dd{margin:4px 0 0;color:#4c687d;line-height:1.55}
 
-/* Foto della squadra e ritratto accanto alla scheda partita. */
-.team-photo{margin:0;overflow:hidden;border:1px solid #c7d9e4;border-radius:24px;background:#e3eff5}
-.team-photo img{display:block;width:100%;height:auto}
-.match-player{position:absolute;display:block;width:var(--match-player-width);height:auto;max-width:none;pointer-events:none;filter:drop-shadow(0 8px 12px #05162640)}
-.match-card{--match-player-width:clamp(94px,9vw,155px)}
-@media(min-width:761px){
- .match-card{right:max(4vw,calc(var(--match-player-width) - 12px))}
- .match-strike .match-card{right:max(10vw,calc(var(--match-player-width) - 12px))}
- .match-player{right:calc(21px - var(--match-player-width));bottom:-32px}
+.team-photo,.school-photo{margin:0;overflow:hidden;border:1px solid #c7d9e4;border-radius:24px;background:#e3eff5}
+.team-photo img,.school-photo img{display:block;width:100%;height:auto}
+
+.membership{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) minmax(0,clamp(130px,18vw,300px)) minmax(0,190px);
+ align-items:center;
+ column-gap:clamp(18px,3vw,56px);
+ padding:0 13vw 0 7vw;
+}
+.membership-copy{min-width:0;padding-block:100px}
+.membership-player{
+ display:block;
+ align-self:end;
+ justify-self:center;
+ width:100%;
+ height:auto;
+ transform:translateY(5%);
+}
+.membership .final-crest{
+ position:static;
+ width:100%;
+ transform:none;
+ margin:0;
+}
+
+@media(max-width:900px){
+ .membership{padding-inline:7vw;grid-template-columns:minmax(0,1fr) 140px 130px}
 }
 @media(max-width:760px){
- .team-photo{border-radius:17px}
- .match-card{--match-player-width:clamp(58px,15vw,77px)}
- .match-player{right:-4px;top:calc(100% - 7px)}
+ .team-photo,.school-photo{border-radius:17px}
+ .membership{grid-template-columns:1fr 1fr;column-gap:16px}
+ .membership-copy{grid-column:1 / -1;padding:65px 0 0}
+ .membership-player{width:min(100%,170px)}
+ .membership .final-crest{width:min(100%,125px);justify-self:center}
 }
